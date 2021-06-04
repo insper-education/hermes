@@ -5,8 +5,8 @@ from datetime import datetime
 from shutil import copyfile
 from tempfile import mkstemp
 
-from excel import open_sheet_keep_row
-from mail_send import EmailMessage
+from .excel import open_sheet_keep_row
+from .mail_send import EmailMessage
 import markdown2
 
 def symbols_replace(template, symbols):
