@@ -10,6 +10,7 @@ from hermes import excel
 from hermes.gsheet import read_sheet, get_header_lines_number, get_header_columns, sheet_id_from_url
 from hermes.mail_util import load_mail_credentials, find_mail_column_index, prepare_mails, format_google_url
 from hermes.mail_send import email_providers, EmailBackend
+from hermes.config import mail_credentials
 import yaml
 
 APP_VERSION = '1.1.0'
@@ -31,7 +32,6 @@ if __name__ == '__main__':
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)
 
-    mail_credentials_path = 'mail_credentials.json'
     google_credentials_path = 'google_credentials.json'
 
     if args.config:
@@ -42,8 +42,6 @@ if __name__ == '__main__':
     with open(config_file, 'r') as file:
         config = yaml.load(file, Loader=yaml.FullLoader)
     #config['sheet']['url'] = format_google_url(config['sheet']['url'])
-
-    mail_credentials = load_mail_credentials(mail_credentials_path)
 
     file_path = None
     if 'google.com' in config["sheet"]["url"]:
