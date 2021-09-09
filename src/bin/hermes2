@@ -1,0 +1,60 @@
+#! /usr/bin/env python3
+
+import click
+import os
+
+from click.decorators import password_option
+from hermes.config import mail_credentials
+from hermes.mail_send import email_providers
+import smtplib, ssl
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+
+@click.group()
+def hermes():
+    pass
+
+@hermes.command()
+@click.option('--file-suffix')
+@click.option('--email-suffix')
+@click.option('--subject', default='Feedback')
+def files(file_suffix, email_suffix, subject):
+    if not file_suffix or not email_suffix:
+        return
+
+    email = mail_credentials["username"]
+    password = mail_credentials["app_password"]
+    provider = email_providers[mail_credentials['provider']]
+
+    context = ssl.create_default_context()
+    
+    with smtplib.SMTP(provider['host'], provider['port']) as server:
+        server.ehlo()
+        server.starttls(context=context)
+        server.ehlo()
+        server.login(email, password)
+    
+
+        for f in os.listdir('.'):
+            if f.endswith(file_suffix):
+                student_email = f[:-len(file_suffix)] + email_suffix
+                print(student_email)
+
+                msg = MIMEMultipart('alternative')
+                msg['Subject'] = subject
+                msg['From'] = email
+                msg['To'] = student_email
+                msg.add_header('Content-Type','text/html')
+
+                with open(f) as file:
+                    content = file.read()
+                    part1 = MIMEText(content, 'html')
+                    msg.attach(part1)
+                
+                server.send_message(msg)
+
+    
+
+if __name__ == '__main__':
+    hermes()
